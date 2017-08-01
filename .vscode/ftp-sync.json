@@ -14,7 +14,7 @@
     "ignore": [
         "\\.vscode",
         "\\.git",
-        "\\.DS_Store"
+        "\\README.md"
     ],
     "generatedFiles": {
         "uploadOnSave": false,
