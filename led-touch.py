@@ -1,10 +1,12 @@
 #!/usr/bin/env python3 
 # from ev3dev.ev3 import *
 
-print("jedeme 123")
-# ts = TouchSensor()
-# # while True:
-# Leds.set_color(Leds.LEFT, (Leds.GREEN, Leds.RED)[ts.value()])
+import ev3dev.ev3 as ev3
+
+print("jedeme")
+ts = ev3.TouchSensor()
+while True:
+    ev3.Leds.set_color(ev3.Leds.LEFT, (ev3.Leds.GREEN, ev3.Leds.RED)[ts.value()])
 
 # do not delete lines below
 # export PATH=/usr/bin/python3:$PATH
