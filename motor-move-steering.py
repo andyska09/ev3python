@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
 
 import ev3dev.ev3 as ev3
@@ -8,9 +8,17 @@ from time import sleep
 m_b = ev3.LargeMotor('outB')
 m_c = ev3.LargeMotor('outC')
 
-m_b.run_to_rel_pos(position_sp=360, speed_sp=1000, stop_action="hold")
-m_c.run_to_rel_pos(position_sp=-360, speed_sp=1000, stop_action="hold")
-ev3.Sound.beep()
+b = 0
+tp = 500
+st = input("steering: ")
+t = input("time: ")
+b = tp + int(st)
+print(b)
+
+print('motory jedou')
+
+m_b.run_timed(time_sp=t, speed_sp=b, stop_action='brake')
+m_c.run_timed(time_sp=t, speed_sp=tp, stop_action='brake')
 m_b.wait_while('running')
 m_c.wait_while('running')
 print('konec')
