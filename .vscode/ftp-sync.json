@@ -1,6 +1,6 @@
 {
     "remotePath": "./",
-    "host": "10.0.0.6",
+    "host": "ev3dev",
     "username": "robot",
     "password": "maker",
     "port": 22,

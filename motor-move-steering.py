@@ -5,7 +5,7 @@ import ev3dev.ev3 as ev3
 from time import sleep
 
 
-m_b = ev3.LargeMotor('outB')
+m_b = ev3.LargeMotor('outB') 
 m_c = ev3.LargeMotor('outC')
 
 b = 0
