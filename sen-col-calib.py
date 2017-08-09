@@ -4,31 +4,22 @@
 from ev3dev.ev3 import *
 from time import sleep
 
+def measure_and_save_color(say_prompt, touch_sensor, cl, file):
+    Sound.speak(say_prompt).wait()
+    color = cl.value()
+    while not touch_sensor.value():
+        color = cl.value()
+    print(color)
+    text_file.write("%s\n" % color)
+    return
 
+text_file = open("color.txt", "w")
 ts = TouchSensor()
 cl = ColorSensor()
 assert cl.connected, "Connect a color sensor to any sensor port"
 cl.mode = 'COL-REFLECT'
 
-def measure_color(say_prompt):
-    Sound.speak(say_prompt).wait()
-    color = cl.value()
-    while not ts.value():
-        color = cl.value()
-    return color 
-white = measure_color('Show me white')
-print(white)
-black = measure_color('Show me black')
-print(black)
+measure_and_save_color('Show me white', ts, cl, text_file)
+measure_and_save_color('Show me black', ts, cl, text_file)
 
-# white = cl.value()
-# Sound.speak('Show me white').wait()
-# while not ts.value():
-#     white = cl.value()
-# print(white)
-
-# black = cl.value()
-# Sound.speak('Show me black').wait()
-# while not ts.value():
-#     black = cl.value()
-# print(black)
+text_file.close()
