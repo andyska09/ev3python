@@ -15,3 +15,5 @@ while not ts.value():
     m_b.run_forever(speed_sp=x)
     m_c.run_forever(speed_sp=x)
     x = 1 + x
+m_c.stop(stop_action="brake")
+m_b.stop(stop_action="brake")
