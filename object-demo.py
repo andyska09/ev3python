@@ -4,14 +4,14 @@
 from ev3dev.ev3 import *
 from time import sleep
 
-clL = ColorSensor("in1") #left cl sensor
-clM = ColorSensor("in2") #middle cl sensor
-clR = ColorSensor("in3") #right cl sensor
+cl_left = ColorSensor("in1") #left cl sensor
+cl_middle = ColorSensor("in2") #middle cl sensor
+cl_right = ColorSensor("in3") #right cl sensor
 ts = TouchSensor()
 
-clL.mode = 'COL-REFLECT'
-clM.mode = 'COL-REFLECT'
-clR.mode = 'COL-REFLECT'
+cl_left.mode = 'COL-REFLECT'
+cl_middle.mode = 'COL-REFLECT'
+cl_right.mode = 'COL-REFLECT'
 assert ColorSensor().connected, "Connect a color sensor to any sensor port"
 assert ts.connected, "Connect a touch sensor to any sensor port"
 
@@ -44,8 +44,8 @@ class LineFollower:
         integral = 0
         last_err = 0
         while not ts.value():    # Stop program by pressing touch sensor button
-            print(clM.value())
-            err = self.target - clM.value()
+            print(cl_middle.value())
+            err = self.target - cl_middle.value()
             integral = err + integral
             #This is pid formula
             corr = err * self.kp + integral * self.ki + (err - last_err) * self.kd
@@ -61,6 +61,6 @@ class LineFollower:
 print("Getting started with objects\n----------------------------\n")
 print("1")
 lf = LineFollower('color.txt', 1, 0, 0)
-print("2")
+print("ki = ",lf.ki)
 
 lf.sleduj_caru()
