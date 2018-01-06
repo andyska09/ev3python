@@ -3,6 +3,7 @@
 
 from ev3dev.ev3 import *
 from time import sleep
+from datetime import datetime
 
 cl_left = ColorSensor("in1") #left cl sensor
 cl_middle = ColorSensor("in2") #middle cl sensor
@@ -32,7 +33,7 @@ class LineFollower:
             black = int(f.readline())
             print(black)
         self.target = (white - black) / 2
-        self.tp = 300
+        self.tp = 250
         self.kp = kp
         self.ki = ki
         self.kd = kd
@@ -43,8 +44,11 @@ class LineFollower:
         print("\n** this is method.sleduj_caru(s*")
         integral = 0
         last_err = 0
-        while not ts.value():    # Stop program by pressing touch sensor button
-            print(cl_middle.value())
+        i = 0
+        t1 = datetime.now()
+        while (not ts.value()) and i < 680:    # Stop program by pressing touch sensor button
+            # print(i)
+            # print(cl_middle.value())
             err = self.target - cl_middle.value()
             integral = err + integral
             #This is pid formula
@@ -54,13 +58,18 @@ class LineFollower:
             m_b.run_forever(speed_sp= tp_r)  # This will makes robot turning
             m_c.run_forever(speed_sp= tp_l)
             last_err = err
+            i = i + 1
+        t2 = datetime.now()
+        print(str(t1))
+        print(str(t2))
+
         m_b.stop(stop_action="hold")
         m_c.stop(stop_action="hold")
 
 
 print("Getting started with objects\n----------------------------\n")
 print("1")
-lf = LineFollower('color.txt', 1, 0, 0)
+lf = LineFollower('color.txt', 1.3, 0, 0)
 print("ki = ",lf.ki)
 
 lf.sleduj_caru()
