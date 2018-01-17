@@ -18,17 +18,18 @@ print(3)
 
 us.mode = 'US-DIST-CM'
 cl_left.mode = 'COL-REFLECT'
-cl_middle.mode = 'COL-REFLECT'
+#cl_middle.mode = 'COL-REFLECT'
 #cl_right.mode = 'COL-REFLECT'
 print(4)
 assert ColorSensor().connected, "Connect a color sensor to any sensor port"
 assert ts.connected, "Connect a touch sensor to any sensor port"
 assert us.connected, "Connect a single US sensor to any sensor port"
 
-
 m_b = LargeMotor('outB')
 m_c = LargeMotor('outC')
 
+assert m_b.connected, "Connect the right motor to port b"
+assert m_c.connected, "Connect the left motor to port c"
 
 class LineFollower:
     'Program for EV3 to follow a line, implemented using objects.'
@@ -43,7 +44,7 @@ class LineFollower:
             print(black)
         self.target = (white - black) / 2 + black
         self.tp = 250
-        self.kp = kp
+        self.kp = 1
         self.ki = ki
         self.kd = kd
         print("Robot is initialized with values:\n\ttarget = %s\n\tk_d = %s" %
@@ -62,6 +63,10 @@ class LineFollower:
         t_now = time.time()
         print(t_now)
         print(t_now - t_start)
+        print("pred")
+        print(ts.value())
+        print(us.value())
+        print("za")
         # Stop program by pressing touch sensor button
         while (not ts.value()) and (((time.time() - t_start) < 10) or (us.value() > 300)):
             # print(i)
@@ -94,4 +99,3 @@ lf = LineFollower('color.txt', 1.3, 0, 0)
 print("ki = ", lf.ki)
 
 lf.sleduj_caru()
-print(71)
