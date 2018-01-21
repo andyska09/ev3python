@@ -39,9 +39,9 @@ class LineFollower:
             print(black)
         self.target = (white - black) / 2 + black
         self.tp = 250
-        self.kp = 0.6
-        self.ki = 0.054
-        self.kd = 1.663
+        self.kp = 1
+        self.ki = 0
+        self.kd = 0
         print("Robot is initialized with values:\n\ttarget = %s\n\tk_d = %s" %
               (self.target, self.kd))
 
