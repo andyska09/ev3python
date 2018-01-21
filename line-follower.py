@@ -39,9 +39,9 @@ class LineFollower:
             print(black)
         self.target = (white - black) / 2 + black
         self.tp = 250
-        self.kp = 1
-        self.ki = ki
-        self.kd = kd
+        self.kp = 0.6
+        self.ki = 0.054
+        self.kd = 1.663
         print("Robot is initialized with values:\n\ttarget = %s\n\tk_d = %s" %
               (self.target, self.kd))
 
@@ -55,9 +55,10 @@ class LineFollower:
         print(t_start)
         print("kuku")
         # Stop program by pressing touch sensor button
-        while (not ts.value()) or i < 1000:
+        while (not ts.value()):
+            #and i < 1000:
             #and (((time.time() - t_start) < 10) or (us.value() > 300)):
-            print(i)
+            #print(i)
             # print(cl_middle.value())
             err = self.target - cl_middle.value()
             integral = err + integral
