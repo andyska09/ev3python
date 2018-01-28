@@ -57,25 +57,36 @@ class LineFollower:
     def sleduj_caru(self):
         print("\n** this is method.sleduj_caru(s*")
         # on_side = "left"
-        on_side = "right"
+        on_side = "left"
         integral = 0
         last_err = 0
-        max_err = 0
         i = 0
+        side_was_changed = False 
 
         log = ""
         self.t_start = time.time()
-        t1 = datetime.now()
         # Stop program by pressing touch sensor button
         while self.can_continue():
             log_line = "%4d" % i
-            if (on_side == "left") and (cl_middle.value() > 80) and (cl_right.value() > 80):
-                on_side = "right"
-            if (on_side == "right") and (cl_middle.value() > 80) and (cl_left.value() > 80):
-                on_side = "left"
-            log_line += " %s %3d %3d %3d \n" % (on_side, cl_left.value(), cl_middle.value(), cl_right.value())
+            cleft = cl_left.value()
+            cmiddle = cl_middle.value()
+            cright = cl_right.value()
+            if side_was_changed:
+                if (cmiddle > 25) and (cmiddle < 75):
+                    side_was_changed = False
+            else:
+                if (on_side == "left"):
+                    if (cmiddle > 80) and (cright > 80):
+                        on_side = "right"
+                        side_was_changed = True
+                else:
+                    if (cmiddle > 80) and (cleft > 80):
+                        on_side = "left"
+                        side_was_changed = True
+    
+            log_line += " %s %s %3d %3d %3d \n" % (on_side, side_was_changed, cleft, cmiddle, cright)
 
-            err = self.target - cl_middle.value()
+            err = self.target - cmiddle
             integral = err + 2/3 * integral
             # This is pid formula
             corr = err * self.kp + integral * \
@@ -93,13 +104,9 @@ class LineFollower:
             last_err = err
             i = i + 1
             log = log + log_line
-
-        t2 = datetime.now()
+        log_line = "duration: %s sec" % str(time.time() - self.t_start)
+        log += log_line
         self.write_log(log)
-
-        print(str(t1))
-        print(str(t2))
-        # print(max_err)
 
         m_b.stop(stop_action="hold")
         m_c.stop(stop_action="hold")
