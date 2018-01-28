@@ -31,18 +31,16 @@ class LineFollower:
     'Program for EV3 to follow a line, implemented using objects.'
 
     def __init__(self, colors_file_name, kp, ki, kd):
-        print("** this is constructor **")
-        print("Read colors from the file: '%s'" % colors_file_name)
         with open('color.txt') as f:
             white = int(f.readline())
             print(white)
             black = int(f.readline())
             print(black)
         self.target = (white - black) / 2 + black
-        self.tp = 500
+        self.tp = 450
         self.kp = 1.020
-        self.ki = 0.049
-        self.kd = 5.320
+        self.ki = 0.037
+        self.kd = 7.108
         print("Robot is initialized with values:\n\ttarget = %s\n\tk_d = %s" %
               (self.target, self.kd))
 
@@ -51,12 +49,8 @@ class LineFollower:
         f.write(log)
         f.close()
 
-    def can_continue(self):
-        return (not ts.value()) and ((time.time() - self.t_start) < 10) #or (us.value() > 300))
-
     def sleduj_caru(self):
         print("\n** this is method.sleduj_caru(s*")
-        # on_side = "left"
         on_side = "left"
         integral = 0
         last_err = 0
@@ -66,34 +60,34 @@ class LineFollower:
         log = ""
         self.t_start = time.time()
         # Stop program by pressing touch sensor button
-        while self.can_continue():
-            log_line = "%4d" % i
+        while (not ts.value()) and i < 800: #((time.time() - self.t_start) < 10) #or (us.value() > 300)):
+            # log_line = "%4d" % i
             cleft = cl_left.value()
             cmiddle = cl_middle.value()
             cright = cl_right.value()
-            if side_was_changed:
-                if (cmiddle > 25) and (cmiddle < 75):
-                    side_was_changed = False
-            else:
-                if (on_side == "left"):
-                    if (cmiddle > 80) and (cright > 80):
-                        on_side = "right"
-                        side_was_changed = True
-                else:
-                    if (cmiddle > 80) and (cleft > 80):
-                        on_side = "left"
-                        side_was_changed = True
+            # if side_was_changed:
+            #     if (cmiddle > 25) and (cmiddle < 75):
+            #         side_was_changed = False
+            # else:
+            #     if (on_side == "left"):
+            #         if (cmiddle > 80) and (cright > 80):
+            #             on_side = "right"
+            #             side_was_changed = True
+            #     else:
+            #         if (cmiddle > 80) and (cleft > 80):
+            #             on_side = "left"
+            #             side_was_changed = True
     
-            log_line += " %s %s %3d %3d %3d \n" % (on_side, side_was_changed, cleft, cmiddle, cright)
+            # log_line += " %s %s %3d %3d %3d \n" % (on_side, side_was_changed, cleft, cmiddle, cright)
 
             err = self.target - cmiddle
-            integral = err + 2/3 * integral
+            integral = err + integral
             # This is pid formula
             corr = err * self.kp + integral * \
                 self.ki + (err - last_err) * self.kd
 
-            if on_side == "right":
-                corr = -corr 
+            # if on_side == "right":
+                # corr = -corr 
 
             tp_r = self.tp + (corr * 10) / 2  # this is motor on outB
             tp_l = self.tp - (corr * 10) / 2  # this is motor on outC
@@ -103,11 +97,11 @@ class LineFollower:
             m_c.run_forever(speed_sp=tp_l)
             last_err = err
             i = i + 1
-            log = log + log_line
+            # log = log + log_line
         log_line = "duration: %s sec" % str(time.time() - self.t_start)
         log += log_line
         self.write_log(log)
-
+        print(log_line)
         m_b.stop(stop_action="hold")
         m_c.stop(stop_action="hold")
 
