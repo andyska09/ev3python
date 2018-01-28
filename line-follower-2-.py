@@ -3,27 +3,23 @@
 
 
 from ev3dev.ev3 import *
-print(2)
 from time import sleep
-print(3)
+import time
 from datetime import datetime
-print(4)
 
 cl_left = ColorSensor("in1")  # left cl sensor
 cl_middle = ColorSensor("in2")  # middle cl sensor
 cl_right = ColorSensor("in3")  # right cl sensor
 ts = TouchSensor()
 us = UltrasonicSensor()
-print(3)
 
-us.mode = 'US-DIST-CM'
+# us.mode = 'US-DIST-CM'
 cl_left.mode = 'COL-REFLECT'
-#cl_middle.mode = 'COL-REFLECT'
-#cl_right.mode = 'COL-REFLECT'
-print(4)
+cl_middle.mode = 'COL-REFLECT'
+cl_right.mode = 'COL-REFLECT'
 assert ColorSensor().connected, "Connect a color sensor to any sensor port"
 assert ts.connected, "Connect a touch sensor to any sensor port"
-assert us.connected, "Connect a single US sensor to any sensor port"
+# assert us.connected, "Connect a single US sensor to any sensor port"
 
 m_b = LargeMotor('outB')
 m_c = LargeMotor('outC')
@@ -35,67 +31,84 @@ class LineFollower:
     'Program for EV3 to follow a line, implemented using objects.'
 
     def __init__(self, colors_file_name, kp, ki, kd):
-        print("** this is constructor **")
-        print("Read colors from the file: '%s'" % colors_file_name)
         with open('color.txt') as f:
             white = int(f.readline())
             print(white)
             black = int(f.readline())
             print(black)
         self.target = (white - black) / 2 + black
-        self.tp = 250
-        self.kp = 1
-        self.ki = ki
-        self.kd = kd
+        self.tp = 450
+        self.kp = 1.020
+        self.ki = 0.037
+        self.kd = 7.108
         print("Robot is initialized with values:\n\ttarget = %s\n\tk_d = %s" %
               (self.target, self.kd))
 
+    def write_log(self, log):
+        f = open("lightlog.txt","w")
+        f.write(log)
+        f.close()
+
     def sleduj_caru(self):
         print("\n** this is method.sleduj_caru(s*")
+        on_side = "left"
         integral = 0
         last_err = 0
         i = 0
-        t1 = datetime.now()
-        t_start = time.time()
-        print("kuku")
-        print(t_start)
-        sleep(1)
-        t_now = time.time()
-        print(t_now)
-        print(t_now - t_start)
-        print("pred")
-        print(ts.value())
-        print(us.value())
-        print("za")
+        side_was_changed = False 
+
+        log = ""
+        self.t_start = time.time()
         # Stop program by pressing touch sensor button
-        while (not ts.value()) and (((time.time() - t_start) < 10) or (us.value() > 300)):
-            # print(i)
-            # print(cl_middle.value())
-            err = self.target - cl_middle.value()
+        while (not ts.value()) and i < 800: #((time.time() - self.t_start) < 10) #or (us.value() > 300)):
+            # log_line = "%4d" % i
+            cleft = cl_left.value()
+            cmiddle = cl_middle.value()
+            cright = cl_right.value()
+            # if side_was_changed:
+            #     if (cmiddle > 25) and (cmiddle < 75):
+            #         side_was_changed = False
+            # else:
+            #     if (on_side == "left"):
+            #         if (cmiddle > 80) and (cright > 80):
+            #             on_side = "right"
+            #             side_was_changed = True
+            #     else:
+            #         if (cmiddle > 80) and (cleft > 80):
+            #             on_side = "left"
+            #             side_was_changed = True
+    
+            # log_line += " %s %s %3d %3d %3d \n" % (on_side, side_was_changed, cleft, cmiddle, cright)
+
+            err = self.target - cmiddle
             integral = err + integral
             # This is pid formula
             corr = err * self.kp + integral * \
                 self.ki + (err - last_err) * self.kd
+
+            # if on_side == "right":
+                # corr = -corr 
+
             tp_r = self.tp + (corr * 10) / 2  # this is motor on outB
             tp_l = self.tp - (corr * 10) / 2  # this is motor on outC
+            tp_r = min(1000, max(-1000, tp_r))
+            tp_l = min(1000, max(-1000, tp_l))
             m_b.run_forever(speed_sp=tp_r)  # This will makes robot turning
             m_c.run_forever(speed_sp=tp_l)
             last_err = err
             i = i + 1
-            print("sec: %d ultrazvuk %d" % (time.time() - t_start, us.value()))
-        t2 = datetime.now()
-        print(str(t1))
-        print(str(t2))
-
+            # log = log + log_line
+        log_line = "duration: %s sec" % str(time.time() - self.t_start)
+        log += log_line
+        self.write_log(log)
+        print(log_line)
         m_b.stop(stop_action="hold")
         m_c.stop(stop_action="hold")
 
 
-print(6)
 
 print("Getting started with objects\n----------------------------\n")
 print("1")
 lf = LineFollower('color.txt', 1.3, 0, 0)
 print("ki = ", lf.ki)
-
 lf.sleduj_caru()
