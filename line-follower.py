@@ -36,10 +36,10 @@ class LineFollower:
             black = int(f.readline())
             print(black)
         self.target = (white - black) / 2 + black
-        self.tp = 250
-        self.kp = 1.140
-        self.ki = 0.057
-        self.kd = 5.653
+        self.tp = 450
+        self.kp = 1.2
+        self.ki = 0.068
+        self.kd = 5.298
         print("target = %s" % (self.target))
 
     def sleduj_caru(self):
@@ -65,7 +65,6 @@ class LineFollower:
             m_b.run_forever(speed_sp=tp_r)  # This will makes robot turning
             m_c.run_forever(speed_sp=tp_l)
             last_err = err
-            i = i + 1
         print("duration: %s sec" % str(time.time() - self.t_start))
 
 
