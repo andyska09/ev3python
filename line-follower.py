@@ -37,17 +37,16 @@ class LineFollower:
             print(black)
         self.target = (white - black) / 2 + black
         self.tp = 250
-        self.kp = 1
-        self.ki = ki
-        self.kd = kd
+        self.kp = 1.140
+        self.ki = 0.057
+        self.kd = 5.653
         print("target = %s" % (self.target))
 
     def sleduj_caru(self):
         integral = 0
         last_err = 0
         i = 0
-        t1 = datetime.now()
-        t_start = time.time()
+        self.t_start = time.time()
         print("start")
         # Stop program by pressing touch sensor button
         while (not ts.value()):
@@ -55,24 +54,24 @@ class LineFollower:
             # print(i)
             # print(cl_middle.value())
             err = self.target - cl_middle.value()
-            integral = err + integral
+            integral = err + ((2/3)*integral)
             # This is pid formula
             corr = err * self.kp + integral * \
                 self.ki + (err - last_err) * self.kd
             tp_r = self.tp + (corr * 10) / 2  # this is motor on outB
             tp_l = self.tp - (corr * 10) / 2  # this is motor on outC
+            tp_r = min(1000, max(-1000, tp_r))
+            tp_l = min(1000, max(-1000, tp_l))
             m_b.run_forever(speed_sp=tp_r)  # This will makes robot turning
             m_c.run_forever(speed_sp=tp_l)
             last_err = err
             i = i + 1
-        t2 = datetime.now()
-        print(str(t1))
-        print(str(t2))
+        print("duration: %s sec" % str(time.time() - self.t_start))
+
 
         m_b.stop(stop_action="hold")
         m_c.stop(stop_action="hold")
 
 
 lf = LineFollower('color.txt', 1.3, 0, 0)
-
 lf.sleduj_caru()
