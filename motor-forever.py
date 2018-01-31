@@ -17,3 +17,4 @@ while not ts.value():
     x = 1 + x
 m_c.stop(stop_action="brake")
 m_b.stop(stop_action="brake")
+print(1)
