@@ -15,9 +15,9 @@ ts = TouchSensor()
 # us.mode = 'US-DIST-CM'
 cl_left.mode = 'COL-REFLECT'
 cl_middle.mode = 'COL-REFLECT'
-cl_right.mode = 'COL-REFLECT'
+#cl_right.mode = 'COL-REFLECT'
 assert ColorSensor().connected, "Connect a color sensor to any sensor port"
-assert ts.connected, "Connect a touch sensor to any sensor port"
+# assert ts.connected, "Connect a touch sensor to any sensor port"
 # assert us.connected, "Connect a single US sensor to any sensor port"
 
 m_b = LargeMotor('outB')
