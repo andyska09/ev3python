@@ -11,6 +11,7 @@ cl_middle = ColorSensor("in2")  # middle cl sensor
 cl_right = ColorSensor("in3")  # right cl sensor
 ts = TouchSensor()
 us = UltrasonicSensor()
+btn = Button()
 
 us.mode = 'US-DIST-CM'
 cl_left.mode = 'COL-REFLECT'
@@ -45,8 +46,8 @@ class LineFollower:
 
     def sleduj_caru(self):
         target = self.target
-        tp = 450
-        kp = 2.3
+        tp = 500
+        kp = 11.363
         ki = 0
         kd = 0
         integral = 0
@@ -61,10 +62,16 @@ class LineFollower:
         t_start = time.time()
         # Stop program by pressing touch sensor button
         # (not ts.value()) and
-        while (((time.time() - t_start) < 10) or (us.value() > 300)) and (i < 1000):
+        # 
+        # while ( \
+        #     and ((i % 11 != 0) or (not btn.backspace)):        
+        while (i % 11 != 0) or \
+            (not btn.backspace and \
+            ((time.time() - t_start) < 80) or (us.value() > 300)) and i < 1000:
             cright = 0
             cmiddle = cl_middle.value()
             cleft = 0
+            
             # if side_was_changed:
             #     if (cmiddle > 25) and (cmiddle < 75):
             #         side_was_changed = False
@@ -84,7 +91,7 @@ class LineFollower:
             err = target - cmiddle
             integral = err + ((2/3)*integral)
             # This is pid formula
-            corr = (err * kp + integral * ki + (err - last_err) * kd) * 5
+            corr = (err * kp + integral * ki + (err - last_err) * kd) / 2
             # corr = corr * 5  # (corr * 10) / 2
             if on_side == "R":
                 corr = -corr 
@@ -101,7 +108,6 @@ class LineFollower:
             m_b.run_forever(speed_sp=tp_r)  # This will makes robot turning
             m_c.run_forever(speed_sp=tp_l)
             last_err = err
-            # log_line += " %s %s %3d %3d %3d \n" % (on_side, side_was_changed, cleft, cmiddle, cright)
             if prev_sign is None:
                 if err > 0:
                     prev_sign = 1
@@ -117,6 +123,7 @@ class LineFollower:
                 else:
                     prev_sign = -1                   
             log_line += " %s %s %3d %3d \n" % (str(prev_sign), err> 0, oscil_count, err)
+            # log_line += " %s %s %3d %3d %3d \n" % (on_side, side_was_changed, cleft, cmiddle, cright)
             i += 1 
         print("duration: %s sec" % str(time.time() - t_start))
         self.write_log(log_line)
